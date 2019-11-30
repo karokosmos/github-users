@@ -1,74 +1,103 @@
 const root = 'https://api.github.com';
 
 /***********************************************/
-// GET USER DATA
+// USER PROFILE
 /***********************************************/
 
-const getUserRepos = username => {
-  console.log('Username: ' + username);
+showUserProfile = user => {
+  const profileDiv = document.querySelector('.profile');   
+  const resultsDiv = document.querySelector('.results');
+  resultsDiv.setAttribute('hidden', true);
+  profileDiv.removeAttribute('hidden');
+
+  const profileElements = `<h2 class="profile__name">${user.name}</h2>
+                          <img class="profile__avatar" src="${user.avatar}" alt="User avatar"/>
+                          `;
+                 
+  profileDiv.innerHTML = profileElements;
+}
+
+const getUserRepos = user => {
+  showUserProfile(user)
+  console.log(user);
 }
 
 /***********************************************/
-// SHOW RESULTS AND SELECT USER
+// SEARCH RESULTS
 /***********************************************/
 
 const selectUser = (users, resultsList) => {
   resultsList.addEventListener('click', e => {
     if (!e.target.closest('li')) return;
-    const username = e.target.closest('li').innerText;
-    /* const user = users.find(user => user.login === username); */
-    getUserRepos(username);
+    const selectedUser = e.target.closest('li').innerText;
+    const user = users.find(user => user.name === selectedUser);
+    getUserRepos(user);
   });
 }
 
 const showSearchResults = users => {
-  console.log(users);
+  const profileDiv = document.querySelector('.profile');
+  const resultsDiv = document.querySelector('.results');
+  const resultsList = document.createElement('ul');
 
-  // Create li elements for found users
+  resultsList.classList.add('results__list');
+  resultsDiv.appendChild(resultsList);
+
   const userElements = users.map(user => {
     return `<li class="results__user">
-              <img class="results__avatar" src="${user.avatar_url}" alt="User avatar"/>
+              <img class="results__avatar" src="${user.avatar}" alt="User avatar"/>
               <a class="results__username" href="#">
-                ${user.login}
+                ${user.name}
               </a>
             </li>`
   }).join('');
 
-  // Show found users in the DOM
-  const resultsList = document.querySelector('.results__list');
   resultsList.innerHTML = userElements;
+
+  resultsDiv.removeAttribute('hidden');
+  profileDiv.setAttribute('hidden', true);
 
   selectUser(users, resultsList);
 }
 
 /***********************************************/
-// SEARCH USERS
+// SEARCH
 /***********************************************/
 
-const searchUsers = searchTerms => {
+const searchUsers = searchTerm => {
   axios.get(`${root}/search/users`, {
     params: {
-      q: `${searchTerms}`
+      q: `${searchTerm}`,
+      per_page: '100'
     }
   })
     .then(response => {
-      // Check if there's more than 1 hit
-      if (response.data.items.length === 1) {
-        showUserInfo(response.data.items);
+      const users = response.data.items.map(user => {
+        return {
+          name: user.login,
+          avatar: user.avatar_url
+        }
+      });
+
+      if (users.length === 1) {
+        getUserRepos(users[0]);
+      } else if (users.length > 1) {
+        showSearchResults(users);
       } else {
-        showSearchResults(response.data.items);
+        showErrorMessage();
       }
     })
     .catch(error => console.log(error));
 }
 
-// FORM
-
 const btn = document.querySelector('.search__btn');
 
 btn.addEventListener('click', e => {
-  const searchTerms = document.querySelector('.search__input').value;
-  if (!searchTerms) return;
+  const resultsDiv = document.querySelector('.results');
+  resultsDiv.innerHTML = '';
+
+  const searchTerm = document.querySelector('.search__input').value;
+  if (!searchTerm) return;
   document.querySelector('.search__input').value = '';
-  searchUsers(searchTerms);
+  searchUsers(searchTerm);
 });
