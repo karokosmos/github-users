@@ -97,7 +97,7 @@ body {
 .results__user {
   display: flex;
   align-items: center;
-  padding: 15px;
+  padding: 1rem;
   margin: 5px;
   /* background-color: #333; */
   border: 2px solid #eee;
@@ -120,3 +120,90 @@ body {
   font-weight: 700;
   padding-left: .8em;
 }
+
+/********************************/
+/* PROFILE */
+/********************************/
+
+/* .profile {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+  flex-wrap: wrap;
+}
+
+.profile__info {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile__name {
+  padding-bottom: 1rem;
+}
+
+.profile__avatar {
+  width: 13rem;
+}
+
+.profile__repos {
+  padding: 0 2rem;
+  list-style-type: none;
+}
+
+.hidden {
+  display: none;
+} */
+
+.profile {
+  padding-top: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr 1fr;
+  grid-template-rows: 4rem 1fr;
+  grid-gap: 0 2rem;
+  grid-template-areas: 
+    ". name name ."
+    ". avatar repos ."
+}
+
+.profile__name {
+  grid-area: name;
+  align-self: center;
+}
+
+.profile__avatar {
+  grid-area: avatar;
+
+  max-width: 100%;
+}
+
+.profile__repos {
+  grid-area: repos;
+  align-self: start;
+
+  display: flex;
+  flex-wrap: wrap;
+
+  list-style-type: none;
+  text-align: center;
+}
+
+.profile__repo-link {
+  text-decoration: none;
+}
+
+.profile__repo {
+  background-color: #333;
+  color: #fff;
+  padding: 1rem;
+  border-radius: 2px;
+  margin: .5rem;
+  transition: transform .2s ease-out;
+}
+
+.profile__repo:hover {
+  transform: translateY(-3px);
+}
+
+.hidden {
+  display: none;
+} 

@@ -4,22 +4,42 @@ const root = 'https://api.github.com';
 // USER PROFILE
 /***********************************************/
 
-showUserProfile = user => {
-  const profileDiv = document.querySelector('.profile');   
+showUserProfile = (user, repos) => {
+  const profileDiv = document.querySelector('.profile');
   const resultsDiv = document.querySelector('.results');
-  resultsDiv.setAttribute('hidden', true);
-  profileDiv.removeAttribute('hidden');
+  profileDiv.classList.remove('hidden');
+  resultsDiv.classList.add('hidden');
 
-  const profileElements = `<h2 class="profile__name">${user.name}</h2>
-                          <img class="profile__avatar" src="${user.avatar}" alt="User avatar"/>
+  console.log(repos);
+
+  let reposList = '';
+
+  repos.length === 0
+    ? reposList = `<h3>No public repositories.</h3>`
+    : reposList = repos.map(repo => {
+      return `<a class="profile__repo-link" href="${repo.html_url}"         target="_blank">
+      <li class="profile__repo">${repo.name}</li>
+    </a>`;
+    }).join('');
+
+  const profileElements = `
+              
+                            <h2 class="profile__name">${user.name}</h2>
+                            <img class="profile__avatar" src="${user.avatar}" alt="User avatar"/>
+                        
+                        
+                          <ul class="profile__repos">
+                            ${reposList}
+                          </ul>
                           `;
-                 
+
   profileDiv.innerHTML = profileElements;
 }
 
 const getUserRepos = user => {
-  showUserProfile(user)
-  console.log(user);
+  axios.get(`${root}/users/${user.name}/repos`)
+    .then(response => showUserProfile(user, response.data))
+    .catch(error => console.log(error));
 }
 
 /***********************************************/
@@ -52,10 +72,10 @@ const showSearchResults = users => {
             </li>`
   }).join('');
 
-  resultsList.innerHTML = userElements;
+  profileDiv.classList.add('hidden');
+  resultsDiv.classList.remove('hidden');
 
-  resultsDiv.removeAttribute('hidden');
-  profileDiv.setAttribute('hidden', true);
+  resultsList.innerHTML = userElements;
 
   selectUser(users, resultsList);
 }
