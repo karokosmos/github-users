@@ -1,6 +1,15 @@
 const root = 'https://api.github.com';
 
 /***********************************************/
+// ERROR MESSAGE
+/***********************************************/
+
+const showErrorMessage = _ => {
+  const error = document.querySelector('.error');
+  error.classList.remove('hidden');
+}
+
+/***********************************************/
 // USER PROFILE
 /***********************************************/
 
@@ -22,24 +31,25 @@ showUserProfile = (user, repos) => {
     </a>`;
     }).join('');
 
-  const profileElements = `
-              
-                            <h2 class="profile__name">${user.name}</h2>
+  const profileElements = ` <a class="profile__name" href="${user.homepage}"                           target="_blank">${user.name}</a>
                             <img class="profile__avatar" src="${user.avatar}" alt="User avatar"/>
-                        
-                        
-                          <ul class="profile__repos">
-                            ${reposList}
-                          </ul>
+                            <ul class="profile__repos">
+                              ${reposList}
+                             </ul>
                           `;
 
   profileDiv.innerHTML = profileElements;
 }
 
 const getUserRepos = user => {
-  axios.get(`${root}/users/${user.name}/repos`)
+  axios.get(`${root}/users/${user.name}/repos`, {
+    params: {
+      sort: 'updated',
+      per_page: '100'
+    }
+  })
     .then(response => showUserProfile(user, response.data))
-    .catch(error => console.log(error));
+    .catch(showErrorMessage);
 }
 
 /***********************************************/
@@ -92,10 +102,12 @@ const searchUsers = searchTerm => {
     }
   })
     .then(response => {
+      console.log(response.data.items);
       const users = response.data.items.map(user => {
         return {
           name: user.login,
-          avatar: user.avatar_url
+          avatar: user.avatar_url,
+          homepage: user.html_url
         }
       });
 
@@ -107,10 +119,11 @@ const searchUsers = searchTerm => {
         showErrorMessage();
       }
     })
-    .catch(error => console.log(error));
+    .catch(showErrorMessage);
 }
 
 const btn = document.querySelector('.search__btn');
+const closeBtn = document.querySelector('.error__close-btn');
 
 btn.addEventListener('click', e => {
   const resultsDiv = document.querySelector('.results');
@@ -120,4 +133,9 @@ btn.addEventListener('click', e => {
   if (!searchTerm) return;
   document.querySelector('.search__input').value = '';
   searchUsers(searchTerm);
+});
+
+closeBtn.addEventListener('click', e => {
+  const error = document.querySelector('.error');
+  error.classList.add('hidden');
 });
