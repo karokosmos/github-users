@@ -65,13 +65,13 @@ const getUserRepos = user => {
       per_page: '100'
     }
   })
-    .then(response => 
+    .then(response =>
       showUserProfile(user, response.data))
     .catch(error =>
       showErrorMessage('Oops, something went wrong. Please try again!'));
 }
 
-showUserProfile = (user, repos) => {
+const showUserProfile = (user, repos) => {
   const profileDiv = document.querySelector('.profile');
   const resultsDiv = document.querySelector('.results');
   profileDiv.classList.remove('hidden');
