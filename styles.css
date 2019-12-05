@@ -63,7 +63,6 @@ body {
   top: 1.5rem;
   background-color: transparent;
   border: none;
-  cursor: pointer;
 }
 
 .search__btn:focus {
@@ -169,19 +168,16 @@ body {
 
 .profile__repo-link {
   text-decoration: none;
-  cursor: pointer;
-}
-
-.profile__repo {
-  background-color: #333;
+  display: inline-block;
   color: #fff;
+  background-color: #333;
   padding: 1rem;
-  border-radius: 2px;
+  border-radius: 2px;;
   margin: .5rem;
   transition: transform .2s ease-out;
 }
 
-.profile__repo:hover {
+.profile__repo-link:hover {
   transform: translateY(-3px);
 }
 
@@ -200,7 +196,6 @@ body {
 .error__close-btn {
   border: none;
   outline: none;
-  cursor: pointer;
   background-color: #fff;
   border-radius: 10rem;
 }

@@ -1,17 +1,75 @@
-const root = 'https://api.github.com';
-
 /***********************************************/
-// ERROR MESSAGE
+// FUNCTIONS
 /***********************************************/
 
-const showErrorMessage = _ => {
-  const error = document.querySelector('.error');
-  error.classList.remove('hidden');
+const searchUsers = searchTerm => {
+  axios.get(`${apiURL}/search/users`, {
+    params: {
+      q: `${searchTerm}`,
+      per_page: '100'
+    }
+  })
+    .then(response =>
+      checkSearchResults(response.data.items))
+    .catch(error =>
+      showErrorMessage('Oops, something went wrong. Please try again!'));
 }
 
-/***********************************************/
-// USER PROFILE
-/***********************************************/
+const checkSearchResults = users => {
+  if (users.length === 1) {
+    getUserRepos(users[0]);
+  } else if (users.length > 1) {
+    showSearchResults(users);
+  } else {
+    showErrorMessage('No users were found. Please try again!');
+  }
+}
+
+const showSearchResults = users => {
+  const profileDiv = document.querySelector('.profile');
+  const resultsDiv = document.querySelector('.results');
+  const resultsList = document.createElement('ul');
+  resultsList.classList.add('results__list');
+  resultsDiv.appendChild(resultsList);
+
+  const userElements = users.map(user => {
+    return `<li class="results__user">
+              <img class="results__avatar" src="${user.avatar_url}" alt="User avatar"/>
+              <a class="results__username" href="#">
+                ${user.login}
+              </a>
+            </li>`
+  }).join('');
+
+  resultsList.innerHTML = userElements;
+
+  profileDiv.classList.add('hidden');
+  resultsDiv.classList.remove('hidden');
+
+  selectUser(users, resultsList);
+}
+
+const selectUser = (users, resultsList) => {
+  resultsList.addEventListener('click', e => {
+    if (!e.target.closest('li')) return;
+    const selectedUser = e.target.closest('li').innerText;
+    const user = users.find(user => user.login === selectedUser);
+    getUserRepos(user);
+  });
+}
+
+const getUserRepos = user => {
+  axios.get(`${apiURL}/users/${user.login}/repos`, {
+    params: {
+      sort: 'updated',
+      per_page: '100'
+    }
+  })
+    .then(response => 
+      showUserProfile(user, response.data))
+    .catch(error =>
+      showErrorMessage('Oops, something went wrong. Please try again!'));
+}
 
 showUserProfile = (user, repos) => {
   const profileDiv = document.querySelector('.profile');
@@ -19,111 +77,47 @@ showUserProfile = (user, repos) => {
   profileDiv.classList.remove('hidden');
   resultsDiv.classList.add('hidden');
 
-  console.log(repos);
-
   let reposList = '';
 
   repos.length === 0
     ? reposList = `<h3>No public repositories.</h3>`
     : reposList = repos.map(repo => {
-      return `<a class="profile__repo-link" href="${repo.html_url}"         target="_blank">
-      <li class="profile__repo">${repo.name}</li>
-    </a>`;
+      return `<li class="profile__repo">
+                <a class="profile__repo-link" href="${repo.html_url}"        target="_blank">
+                  ${repo.name} 
+                </a>
+              </li>`;
     }).join('');
 
-  const profileElements = ` <a class="profile__name" href="${user.homepage}"                           target="_blank">${user.name}</a>
-                            <img class="profile__avatar" src="${user.avatar}" alt="User avatar"/>
+  const profileElements = ` <a class="profile__name" href="${user.html_url}"                           target="_blank">${user.login}</a>
+                            <img class="profile__avatar" src="${user.avatar_url}" alt="User avatar"/>
                             <ul class="profile__repos">
                               ${reposList}
                              </ul>
                           `;
 
   profileDiv.innerHTML = profileElements;
+  window.scrollTo(0, 0);
 }
 
-const getUserRepos = user => {
-  axios.get(`${root}/users/${user.name}/repos`, {
-    params: {
-      sort: 'updated',
-      per_page: '100'
-    }
-  })
-    .then(response => showUserProfile(user, response.data))
-    .catch(showErrorMessage);
+const showErrorMessage = message => {
+  const errorDiv = document.querySelector('.error');
+  const errorMessage = errorDiv.querySelector('.error__message');
+  errorMessage.textContent = message;
+  errorDiv.classList.remove('hidden');
 }
 
 /***********************************************/
-// SEARCH RESULTS
+// VARIABLES
 /***********************************************/
 
-const selectUser = (users, resultsList) => {
-  resultsList.addEventListener('click', e => {
-    if (!e.target.closest('li')) return;
-    const selectedUser = e.target.closest('li').innerText;
-    const user = users.find(user => user.name === selectedUser);
-    getUserRepos(user);
-  });
-}
-
-const showSearchResults = users => {
-  const profileDiv = document.querySelector('.profile');
-  const resultsDiv = document.querySelector('.results');
-  const resultsList = document.createElement('ul');
-
-  resultsList.classList.add('results__list');
-  resultsDiv.appendChild(resultsList);
-
-  const userElements = users.map(user => {
-    return `<li class="results__user">
-              <img class="results__avatar" src="${user.avatar}" alt="User avatar"/>
-              <a class="results__username" href="#">
-                ${user.name}
-              </a>
-            </li>`
-  }).join('');
-
-  profileDiv.classList.add('hidden');
-  resultsDiv.classList.remove('hidden');
-
-  resultsList.innerHTML = userElements;
-
-  selectUser(users, resultsList);
-}
-
-/***********************************************/
-// SEARCH
-/***********************************************/
-
-const searchUsers = searchTerm => {
-  axios.get(`${root}/search/users`, {
-    params: {
-      q: `${searchTerm}`,
-      per_page: '100'
-    }
-  })
-    .then(response => {
-      console.log(response.data.items);
-      const users = response.data.items.map(user => {
-        return {
-          name: user.login,
-          avatar: user.avatar_url,
-          homepage: user.html_url
-        }
-      });
-
-      if (users.length === 1) {
-        getUserRepos(users[0]);
-      } else if (users.length > 1) {
-        showSearchResults(users);
-      } else {
-        showErrorMessage();
-      }
-    })
-    .catch(showErrorMessage);
-}
-
+const apiURL = 'https://api.github.com';
 const btn = document.querySelector('.search__btn');
 const closeBtn = document.querySelector('.error__close-btn');
+
+/***********************************************/
+// EVENT LISTENERS
+/***********************************************/
 
 btn.addEventListener('click', e => {
   const resultsDiv = document.querySelector('.results');
