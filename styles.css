@@ -84,7 +84,7 @@ body {
 }
 
 /********************************/
-/* SEARCH RESULTS */
+/* RESULTS */
 /********************************/
 
 .results__list {
@@ -99,7 +99,6 @@ body {
   align-items: center;
   padding: 1rem;
   margin: 5px;
-  /* background-color: #333; */
   border: 2px solid #eee;
   border-radius: 2px;
   cursor: pointer;
@@ -153,6 +152,7 @@ body {
   grid-area: avatar;
   max-width: 100%;
   border-radius: 2px;
+  margin-bottom: 1rem;
 }
 
 .profile__repos {
@@ -182,7 +182,7 @@ body {
 }
 
 /********************************/
-/* ERROR MESSAGE */
+/* ERROR */
 /********************************/
 
 .error {
@@ -221,3 +221,23 @@ body {
 .error.hidden {
   display: none;
 } 
+
+/* MEDIA QUERIES */
+
+@media only screen and (max-width: 600px) {
+  .profile {
+    grid-template-areas: 
+      ". name name ."
+      ". avatar avatar ."
+      ". repos repos .";
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  .search__input {
+    width: 15rem;
+  }
+  .search__input:focus {
+    width: 15.5rem;
+  }
+}
