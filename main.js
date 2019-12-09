@@ -9,9 +9,8 @@ const searchUsers = searchTerm => {
       per_page: '100'
     }
   })
-    .then(response => {
-      console.log(response);
-      checkSearchResults(response.data.items)})
+    .then(response => 
+      checkSearchResults(response.data.items))
     .catch(error =>
       showErrorMessage('Oops, something went wrong. Please try again!'));
 }
@@ -122,14 +121,12 @@ const closeBtn = document.querySelector('.error__close-btn');
 
 form.addEventListener('submit', e => {
   e.preventDefault();
-
   const resultsDiv = document.querySelector('.results');
   resultsDiv.innerHTML = '';
 
   const searchTerm = document.querySelector('.search__input').value;
   if (!searchTerm) return;
   document.querySelector('.search__input').value = '';
-  console.log(searchTerm);
   searchUsers(searchTerm);
 });
 
