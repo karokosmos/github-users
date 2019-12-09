@@ -9,8 +9,9 @@ const searchUsers = searchTerm => {
       per_page: '100'
     }
   })
-    .then(response =>
-      checkSearchResults(response.data.items))
+    .then(response => {
+      console.log(response);
+      checkSearchResults(response.data.items)})
     .catch(error =>
       showErrorMessage('Oops, something went wrong. Please try again!'));
 }
@@ -33,11 +34,11 @@ const showSearchResults = users => {
   resultsDiv.appendChild(resultsList);
 
   const userElements = users.map(user => {
-    return `<li class="results__user">
+    return `<li class="results__user" id="${user.login}">
               <img class="results__avatar" src="${user.avatar_url}" alt="User avatar"/>
-              <a class="results__username" href="#">
+              <p class="results__username">
                 ${user.login}
-              </a>
+              </p>
             </li>`
   }).join('');
 
@@ -52,7 +53,7 @@ const showSearchResults = users => {
 const selectUser = (users, resultsList) => {
   resultsList.addEventListener('click', e => {
     if (!e.target.closest('li')) return;
-    const selectedUser = e.target.closest('li').innerText;
+    const selectedUser = e.target.closest('li').id;
     const user = users.find(user => user.login === selectedUser);
     getUserRepos(user);
   });
@@ -112,20 +113,23 @@ const showErrorMessage = message => {
 /***********************************************/
 
 const apiURL = 'https://api.github.com';
-const btn = document.querySelector('.search__btn');
+const form = document.querySelector('.search__form');
 const closeBtn = document.querySelector('.error__close-btn');
 
 /***********************************************/
 // EVENT LISTENERS
 /***********************************************/
 
-btn.addEventListener('click', e => {
+form.addEventListener('submit', e => {
+  e.preventDefault();
+
   const resultsDiv = document.querySelector('.results');
   resultsDiv.innerHTML = '';
 
   const searchTerm = document.querySelector('.search__input').value;
   if (!searchTerm) return;
   document.querySelector('.search__input').value = '';
+  console.log(searchTerm);
   searchUsers(searchTerm);
 });
 

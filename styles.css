@@ -114,7 +114,6 @@ body {
 }
 
 .results__username {
-  text-decoration: none;
   color: #333;
   font-weight: 700;
   padding-left: .8em;
